@@ -13,6 +13,7 @@
     "@radix-ui/react-alert-dialog": "^1.0.4",
     "@radix-ui/react-avatar": "^1.0.3",
     "@radix-ui/react-checkbox": "^1.0.4",
+    "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-separator": "^1.0.3",
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-switch": "^1.0.3",
@@ -20,9 +21,12 @@
     "@tanstack/react-table": "^8.9.1",
     "class-variance-authority": "^0.6.0",
     "clsx": "^1.2.1",
+    "framer-motion": "^10.12.16",
     "lucide-react": "^0.236.0",
     "react": "^18.2.0",
+    "react-dnd": "^16.0.1",
     "react-dom": "^18.2.0",
+    "scss": "^0.2.4",
     "tailwind-merge": "^1.13.0",
     "tailwindcss-animate": "^1.0.5"
   },
@@ -37,6 +41,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.3.4",
     "postcss": "^8.4.24",
+    "sass": "^1.62.1",
     "tailwindcss": "^3.3.2",
     "typescript": "^5.0.2",
     "vite": "^4.3.9"

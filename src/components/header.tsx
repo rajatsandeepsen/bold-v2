@@ -10,13 +10,13 @@ interface Props {
  
 const Header: r.FunctionComponent<Props> = ({name, email, logo}) => {
     return ( 
-        <div className='p-5 font-sans'>
+        <div className='p-5 font-sans md:container md:mx-auto flex flex-col gap-1'>
             <Avatar className='w-20 h-20 '>
                 <AvatarImage src={logo || '/hexagon-half.svg'} />
                 <AvatarFallback>{getFallBack(name || 'B D')}</AvatarFallback>
             </Avatar>
-            <h1 className='font-semibold text-3xl'>{name || 'BOLD'}</h1>
-            <p className='font-light text-md'>{email || 'It just a Notion Inspired To-Do list & clipboard tool.'}</p>
+            <h1>{name || 'BOLD MOVE'}</h1>
+            <p>{email || 'It just a Notion Inspired To-Do list & clipboard tool.'}</p>
         </div>
      );
 }
