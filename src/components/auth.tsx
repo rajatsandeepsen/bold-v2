@@ -12,9 +12,11 @@ import { Label } from "../../components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs"
 
 const Auth = () => {
+
+
     return ( 
         <article>
-            <Tabs defaultValue="signup" className="w-[400px] mx-auto">
+            <Tabs defaultValue="login" className="w-[400px] mx-auto">
             <TabsList className="grid w-full grid-cols-2 h-auto">
                 <TabsTrigger className="py-3" value="login">Login</TabsTrigger>
                 <TabsTrigger className="py-3" value="signup">Sign-up</TabsTrigger>
@@ -22,49 +24,57 @@ const Auth = () => {
 
             <TabsContent value="login">
                 <Card>
+                <form>
                 <CardHeader>
-                    <CardTitle>Account</CardTitle>
+                    <CardTitle>Login</CardTitle>
                     <CardDescription>
-                    Make changes to your account here. Click save when you're done.
+                        Login to your Account.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
                     <div className="space-y-1">
-                    <Label htmlFor="name">Name</Label>
-                    <Input id="name" defaultValue="Pedro Duarte" />
+                    <Label htmlFor="email">Email</Label>
+                    <Input required={true} className=" required:valid:bg-slate-100" autoComplete="username" name="email" type="email" placeholder="user@example.com" />
                     </div>
                     <div className="space-y-1">
-                    <Label htmlFor="username">Username</Label>
-                    <Input id="username" defaultValue="@peduarte" />
+                    <Label htmlFor="password">Password</Label>
+                    <Input required={true} className=" required:valid:bg-slate-100" autoComplete="current-password" type="password" name="password" placeholder="**** ****" />
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button>Save changes</Button>
+                    <Button type="submit">Login</Button>
                 </CardFooter>
+                </form>
                 </Card>
             </TabsContent>
 
             <TabsContent value="signup">
                 <Card>
+                <form>
                 <CardHeader>
-                    <CardTitle>Password</CardTitle>
+                    <CardTitle>Signup</CardTitle>
                     <CardDescription>
-                    Change your password here. After saving, you'll be logged out.
+                        Create you Account here.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
                     <div className="space-y-1">
-                    <Label htmlFor="current">Current password</Label>
-                    <Input id="current" type="password" />
+                    <Label htmlFor="newEmail">Email</Label>
+                    <Input required={true} className=" required:valid:bg-slate-100" autoComplete="username" name="newEmail" placeholder="user@example.com" type="email" />
                     </div>
                     <div className="space-y-1">
-                    <Label htmlFor="new">New password</Label>
-                    <Input id="new" type="password" />
+                    <Label htmlFor="newPassword">Password</Label>
+                    <Input required={true} className=" required:valid:bg-slate-100" autoComplete="new-password" name="newPassword" placeholder="**** ****" type="password" />
+                    </div>
+                    <div className="space-y-1">
+                    {/* <Label htmlFor="newPassword">Password</Label> */}
+                    <Input required={true} className=" required:valid:bg-slate-100" autoComplete="new-password" name="newPasswordConfirm" placeholder="Password confirm" type="password" />
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button>Save password</Button>
+                    <Button type="submit">Create</Button>
                 </CardFooter>
+                </form>
                 </Card>
             </TabsContent>
             </Tabs>
