@@ -12,7 +12,7 @@ import { useToast } from "../../components/ui/use-toast"
 
 import { TodoElement } from '../App';
 import { nanoid } from 'nanoid';
-import { Atom, PrimitiveAtom, atom, useAtom } from 'jotai';
+// import { Atom, PrimitiveAtom, atom, useAtom } from 'jotai';
 
 type status = 'Planning' | 'Doing' | 'Done' | 'none'
 
@@ -26,7 +26,7 @@ interface CardEachProps {
  
 const CardEach: React.FunctionComponent<CardEachProps> = ({eachData, status, next, prev}) => {
     const [items, setItems] = React.useState(eachData)
-    const controls = useDragControls()
+    // const controls = useDragControls()
     return ( 
         <Card className='w-full md:w-1/3 h-min'>
         <CardHeader className='flex flex-row p-4  items-center justify-between'>
@@ -35,13 +35,14 @@ const CardEach: React.FunctionComponent<CardEachProps> = ({eachData, status, nex
 
         <Reorder.Group values={items} onReorder={setItems}>
             {items.map((item)=>(  
-                <Reorder.Item key={item.id} value={item} dragListener={false} dragControls={controls}>
-                    <CardContent className=' border p-4 flex justify-between items-center m-2 rounded-md bg-white hover:bg-slate-50'>
+                <Reorder.Item key={item.id} value={item} //dragListener={false} dragControls={controls}
+                >
+                    <CardContent className=' border p-4 flex justify-between select-none items-center m-2 rounded-md bg-white hover:bg-slate-50'>
                         <div className="flex flex-col">
                           <h6>{item.title}</h6>
                           <p>{item.description}</p>
                         </div>
-                        <Grip className='text-slate-300' onPointerDown={(e) => controls.start(e)} />
+                        {/* <Grip className='text-slate-300' onPointerDown={(e) => controls.start(e)} /> */}
                     </CardContent>
               </Reorder.Item>
             ))}
@@ -70,9 +71,10 @@ const CardEach: React.FunctionComponent<CardEachProps> = ({eachData, status, nex
         e.preventDefault()
 
         const form = e.target
-        const element:TodoElement = {title: form.title.value, description:form.description.value, id: nanoid() }
-        console.log(element)
+        const element:TodoElement = {title: form.title.value, description: form.description.value, id: nanoid() }
+        
         setItems((items) => [element, ...items])
+        form.reset()
       }
       
       return (
