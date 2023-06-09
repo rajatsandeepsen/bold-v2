@@ -91,7 +91,7 @@
   }
 
   p {
-    @apply leading-7 ;
+    @apply leading-7 font-light ;
     /* [&:not(:first-child)]:mt-6; */
   }
 
@@ -99,6 +99,9 @@
     @apply scroll-m-20 pb-2 text-3xl font-bold tracking-tight transition-colors first:mt-0 ;
   }
 
+  h6 {
+    @apply leading-5 text-xl font-medium tracking-tight transition-colors
+  }
 
   /* .color {
     color: hsl(0, 100%, 61%);

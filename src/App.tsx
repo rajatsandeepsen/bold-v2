@@ -20,11 +20,12 @@ export type auth = {
   logo: string;
 };
 
-type TodoElement = {title: string, description: string}
+import { nanoid } from 'nanoid'
+export type TodoElement = {title: string, description: string, id:string}
 
 type TodoData = {
   done: TodoElement[]
-  doning: TodoElement[]
+  doing: TodoElement[]
   planning: TodoElement[]
 }
 
@@ -32,14 +33,32 @@ import { atom, useAtom } from "jotai";
 const currentUser = atom<User | null>(null);
 const todoData  = atom<TodoData | null>(null)
 
+const tempElement1:TodoElement = {title: "go touch some grass1", description: "and make some money", id:nanoid()}
+const tempElement11:TodoElement = {title: "go touch some grass11", description: "and make some money", id:nanoid()}
+const tempElement111:TodoElement = {title: "go touch some grass111", description: "and make some money", id:nanoid()}
+const tempData:TodoData = {
+  done: [tempElement1,tempElement11,tempElement111],
+  doing: [tempElement1,tempElement11,tempElement111],
+  planning: [tempElement1,tempElement11,tempElement111],
+}
+
+
+let i = 0;
+
 function App() {
   const [user, setUser] = useAtom(currentUser);
+  const [data, setData] = useAtom(todoData);
 
   onAuthStateChanged(auth, (user) => {
-    if (user) {
+    if (user && i === 0) {
       setUser(user);
+      console.log(user.uid)
+      i++
+
+      setData(tempData)
     }
   });
+
 
   return (
     <>
@@ -47,10 +66,10 @@ function App() {
       <Separator className="mb-10" />
 
       {user ? (
-        <article className="flex gap-10 w-full min-h-96 px-10">
-          <CardEach status="Planning" prev={"Done"} next={"Doing"} array={array} />
-          <CardEach status="Doing" prev={"Planning"} next={"Done"} array={array} />
-          <CardEach status="Done" prev={"Doing"} next={"Planning"} array={array} />
+        <article className="flex flex-col md:flex-row gap-10 w-full justify-center md:min-h-96 px-5 md:px-10">
+          <CardEach status="Planning" prev={"none"} next={"Doing"} eachData={data?.doing || []} />
+          <CardEach status="Doing" prev={"Planning"} next={"Done"} eachData={data?.done || []} />
+          <CardEach status="Done" prev={"Doing"} next={"none"} eachData={data?.planning || []} />
         </article>
       ) : (
         <Auth currentUser={currentUser} auth={auth} />

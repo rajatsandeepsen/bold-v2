@@ -28,6 +28,7 @@
     "framer-motion": "^10.12.16",
     "jotai": "^2.1.1",
     "lucide-react": "^0.236.0",
+    "nanoid": "^4.0.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "scss": "^0.2.4",
