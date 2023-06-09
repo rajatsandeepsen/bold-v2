@@ -49,13 +49,14 @@ const Auth = ({auth,currentUser}:{auth: Auth ,currentUser: PrimitiveAtom<User | 
                     description: cred.user.email,
                 })
             })
-            .catch(e => {
-                console.log(e)
+            .catch(err => {
+                console.log(err)
                 toast({
                     variant: "destructive",
                     title: "Auth Failed",
-                    description: e,
+                    description: err.message,
                 })
+                setCreating(false)
             })
         
     }
@@ -76,13 +77,14 @@ const Auth = ({auth,currentUser}:{auth: Auth ,currentUser: PrimitiveAtom<User | 
                     description: cred.user.email,
                 })
             })
-            .catch(e => {
-                console.log(e)
+            .catch(err => {
+                console.log(err)
                 toast({
                     variant: "destructive",
                     title: "Auth Failed",
-                    description: e,
+                    description: err.message,
                 })
+                setlogining(false)
             })
 
 
