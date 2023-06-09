@@ -90,7 +90,6 @@ const CardEach: React.FunctionComponent<CardEachProps> = ({array, status, next, 
               title: "Scheduled: Catch up",
               description: "Friday, February 10, 2023 at 5:57 PM",
             })
-            alert("JI")
       }}>Save changes</Button>
         </DialogFooter>
       </DialogContent>

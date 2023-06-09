@@ -23,6 +23,8 @@
     "@tanstack/react-table": "^8.9.1",
     "class-variance-authority": "^0.6.0",
     "clsx": "^1.2.1",
+    "dotenv": "^16.1.4",
+    "firebase": "^9.22.2",
     "framer-motion": "^10.12.16",
     "jotai": "^2.1.1",
     "lucide-react": "^0.236.0",

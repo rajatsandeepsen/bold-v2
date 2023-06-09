@@ -61,7 +61,8 @@
       --accent: 216 34% 17%;
       --accent-foreground: 210 40% 98%;
   
-      --destructive: 0 63% 31%;
+      /* --destructive: 0 63% 31%; */
+      --destructive: 0, 100%, 61%;
       --destructive-foreground: 210 40% 98%;
   
       --ring: 216 34% 17%;
@@ -97,3 +98,8 @@
   h2 {
     @apply scroll-m-20 pb-2 text-3xl font-bold tracking-tight transition-colors first:mt-0 ;
   }
+
+
+  /* .color {
+    color: hsl(0, 100%, 61%);
+  } */

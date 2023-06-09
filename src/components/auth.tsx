@@ -1,18 +1,92 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState } from "react"
 import { Button } from "../../components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "../../components/ui/card"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, } from "../../components/ui/card"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs"
+import { useToast } from "../../components/ui/use-toast"
 
-const Auth = () => {
 
+
+
+// import React from "react"
+import { createUserWithEmailAndPassword, Auth, signInWithEmailAndPassword, User } from 'firebase/auth'
+import { PrimitiveAtom, useAtom } from "jotai"
+import { Loader2 } from "lucide-react"
+
+const Auth = ({auth,currentUser}:{auth: Auth ,currentUser: PrimitiveAtom<User | null>}) => {
+    const [creating, setCreating] = useState(false)
+    const [logining, setlogining] = useState(false)
+
+    const [, setUser] = useAtom(currentUser)
+    const {toast} = useToast()
+
+    function signup(e: any){
+        e.preventDefault()
+        setCreating(true)
+
+        const form = e.target
+        const email = form.newEmail.value
+        const password = form.newPassword.value
+        const PasswordConfirm = form.newPasswordConfirm.value
+
+        if (PasswordConfirm !== password){
+            toast({
+                variant: "destructive",
+                title: "Wrong Password Confirmation",
+                description: "Password is not equal",
+            })
+            return;
+        }
+        
+        createUserWithEmailAndPassword(auth, email, password)
+            .then(cred => {
+                console.log(cred.user)
+                // setUser(cred.user)
+                toast({
+                    title: "Auth Success",
+                    description: cred.user.email,
+                })
+            })
+            .catch(e => {
+                console.log(e)
+                toast({
+                    variant: "destructive",
+                    title: "Auth Failed",
+                    description: e,
+                })
+            })
+        
+    }
+
+    function login(e:any){
+        e.preventDefault()
+        setlogining(true)
+        const form = e.target
+        const email = form.email.value
+        const password = form.password.value
+
+        signInWithEmailAndPassword(auth, email, password)
+            .then(cred => {
+                console.log(cred.user)
+                // setUser(cred.user)
+                toast({
+                    title: "Auth Success",
+                    description: cred.user.email,
+                })
+            })
+            .catch(e => {
+                console.log(e)
+                toast({
+                    variant: "destructive",
+                    title: "Auth Failed",
+                    description: e,
+                })
+            })
+
+
+    }
 
     return ( 
         <article>
@@ -24,7 +98,7 @@ const Auth = () => {
 
             <TabsContent value="login">
                 <Card>
-                <form>
+                <form onSubmit={login}>
                 <CardHeader>
                     <CardTitle>Login</CardTitle>
                     <CardDescription>
@@ -42,7 +116,7 @@ const Auth = () => {
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button type="submit">Login</Button>
+                    <Button type="submit" disabled={logining}>Login {logining && <Loader2 className="ml-2 h-4 w-4 animate-spin"/>}</Button>
                 </CardFooter>
                 </form>
                 </Card>
@@ -50,7 +124,7 @@ const Auth = () => {
 
             <TabsContent value="signup">
                 <Card>
-                <form>
+                <form onSubmit={signup}>
                 <CardHeader>
                     <CardTitle>Signup</CardTitle>
                     <CardDescription>
@@ -72,7 +146,7 @@ const Auth = () => {
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button type="submit">Create</Button>
+                    <Button type="submit" disabled={creating}>Create {creating && <Loader2 className="ml-2 h-4 w-4 animate-spin"/>}</Button>
                 </CardFooter>
                 </form>
                 </Card>
