@@ -1,5 +1,5 @@
 import React, {useState, useRef, useEffect} from 'react';
-import { Reorder } from "framer-motion"
+import { Reorder,AnimatePresence, motion } from "framer-motion"
 import { ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react';
 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, } from "../../components/ui/card"
@@ -26,30 +26,28 @@ interface CardEachType {
 }
  
 const CardEach: React.FunctionComponent<CardEachType> = ({current, prev, next}) => {
-
+    const { toast } = useToast()
     const [currentData, setCurrentData ] = useAtom(current.atomCode)
 
-    const [ nextData , setNextData] = useAtom(next.atomCode)
-    const [ prevData, setPrevData] = useAtom(prev.atomCode)
+    const [ , setNextData] = useAtom(next.atomCode)
+    const [ , setPrevData] = useAtom(prev.atomCode)
 
     
     const [items, setItems] = useState<TodoElement[] | []>(currentData || [])
     const form = useRef<HTMLFormElement>(null)
 
     useEffect(() => {
+      // setTimeout(() => setItems(currentData || []),900)
       setItems(currentData || [])
     }, [currentData]);
 
     function adder(to:AtomCode['status'], element:TodoElement[]) {
         switch (to){
-          case next.status: { setNextData([...element, ...(nextData || []) ]); break; } // setNextData((get)=> [...get(next.atomCode)])
-          case prev.status: { setPrevData([...element, ...(prevData || []) ]); break; }
+          case next.status: { setNextData((nextData) => [...element, ...(nextData || []) ]); break; } // setNextData((get)=> [...get(next.atomCode)])
+          case prev.status: { setPrevData((prevData) => [...element, ...(prevData || []) ]); break; }
         }
     }
 
-    // function deleter(element:TodoElement[]){
-    //   element.
-    // }
 
 
     function handleSumbit(futureType:status){
@@ -58,7 +56,7 @@ const CardEach: React.FunctionComponent<CardEachType> = ({current, prev, next}) 
       const newArray:Array<TodoElement> = []
       const oldArray:Array<TodoElement> = []
       const ID:string[] = []
-      // let iterator:Array<TodoElement> = currentData || []
+
       let currentType : status | null = null
 
 
@@ -81,19 +79,19 @@ const CardEach: React.FunctionComponent<CardEachType> = ({current, prev, next}) 
     }
     
     return ( 
-        <Card className='w-full lg:w-1/3 h-min'>
+        <Card className='w-full lg:w-1/3 h-min transition-height duration-500 ease-in-out'>
         <CardHeader className='flex flex-row p-4  items-center justify-between'>
           <CardTitle><Badge>{current.status}</Badge></CardTitle>
         </CardHeader>
         <form ref={form}>
         <Reorder.Group values={items} onReorder={setItems}>
+          <AnimatePresence mode='sync'>
             {items.map((item)=>(  
                 <Reorder.Item 
-                initial={{ top: '-100%' }}
-                  animate={{ top: 0 }}
-                  exit={{top: '-100%'}}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{opacity: 0}}
                   transition={{duration: .5}}
-                  
                   key={item.id} value={item} //dragListener={false} dragControls={controls}
                 >
                     <CardContent className='h-auto border p-4 flex justify-between select-none items-center gap-4 m-2 rounded-md bg-white hover:bg-slate-50'>
@@ -107,6 +105,7 @@ const CardEach: React.FunctionComponent<CardEachType> = ({current, prev, next}) 
                     </CardContent>
               </Reorder.Item>
             ))}
+          </AnimatePresence>
         </Reorder.Group>
         </form>
 
@@ -114,16 +113,28 @@ const CardEach: React.FunctionComponent<CardEachType> = ({current, prev, next}) 
             <DialogDemo setItems={setCurrentData} />
 
             <div className='flex gap-2 flex-wrap justify-end'>
-                <Button onClick={()=> handleSumbit('none')} variant={'destructive'}>
+                <Button onClick={()=> {
+                  handleSumbit('none')
+                  toast({ description: "Successfully Deleted", })
+                }
+                  } variant={'destructive'}>
                   <Trash2 />
                 </Button>
               {prev.status !== 'none' && 
-                <Button onClick={()=> handleSumbit(prev.status)} variant={'outline'}>
+                <Button onClick={()=> {
+                  handleSumbit(prev.status)
+                  toast({ description: `Successfully moved from "${current.status}" to "${prev.status}"`, })
+                }
+                  } variant={'outline'}>
                     <ChevronLeft />
                     <span className='hidden lg:block'>{prev.status}</span>
                 </Button>}
               {next.status !== 'none' && 
-                <Button onClick={()=> handleSumbit(next.status)} variant={'outline'}>
+                <Button onClick={()=> {
+                  handleSumbit(next.status)
+                  toast({ description: `Successfully moved from "${current.status}" to "${next.status}"`, })
+                }
+                  } variant={'outline'}>
                     <span className='hidden lg:block'>{next.status}</span>
                     <ChevronRight />
                 </Button>}

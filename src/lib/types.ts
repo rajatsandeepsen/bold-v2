@@ -1,6 +1,6 @@
 import { PrimitiveAtom,  } from "jotai"
 
-export type TodoElement = {title: string, description: string, id:string}
+export type TodoElement = {title: string, description: string, id?:string}
 
 export type status = 'Planning' | 'Doing' | 'Done' | 'none'
 

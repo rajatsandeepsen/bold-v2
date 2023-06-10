@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { initializeApp } from "firebase/app";
 import firebaseConfig from "./firebase/config";
 import { User, getAuth, onAuthStateChanged } from "firebase/auth";
+import { collection, getFirestore, query, onSnapshot, orderBy, addDoc, serverTimestamp, limit } from 'firebase/firestore'
 
 initializeApp(firebaseConfig);
 const auth = getAuth();
+const db = getFirestore()
 
 
 import Header from "./components/header";
@@ -31,17 +34,19 @@ const doing = atom<TodoElement[] | null>(null)
 const done = atom<TodoElement[] | null>(null)
 
 // temperary data
-const tempElement1:TodoElement = {title: "go touch some grass1", description: "and make some money", id:nanoid()}
-const tempElement11:TodoElement = {title: "go touch some grass11", description: "and make some money", id:nanoid()}
-const tempElement111:TodoElement = {title: "go touch some grass111", description: "and make some money", id:nanoid()}
-const tempData:TodoData = {
-  done: [tempElement1],
-  doing: [tempElement11],
-  planning: [tempElement111],
+const demo1:TodoElement = {title: "Start", description: "Networking with others", id:nanoid()}
+const demo2:TodoElement = {title: "Build", description: "TODO app and submit before saturday", id:nanoid()}
+const demo3:TodoElement = {title: "Apply", description: "for the uLearn frontend intern", id:nanoid()}
+
+const demo:TodoData = {
+  done: [demo3],
+  doing: [demo2],
+  planning: [demo1],
 }
 
 
 let i = 0;
+let docID = '';
 
 function App() {
   const [user, setUser] = useAtom(currentUser);
@@ -56,9 +61,45 @@ function App() {
       console.log(user.uid)
       i++
 
-      setPlanningData(tempData.planning)
-      setDoingData(tempData.doing)
-      setDoneData(tempData.done)
+      const colRef = collection(db, user.uid)
+      const q = query(colRef, orderBy('createdAt','desc'), limit(1))
+
+      onSnapshot(q, (snapshot) => {
+
+        const data:any = []
+        snapshot.docs.forEach(doc => {
+          data.push(doc.data() as any)
+          docID = doc.id
+        })
+
+        console.log(data, docID)
+
+        if (data.length === 0 && i === 1){
+          addDoc(colRef, {
+            planning : demo.planning,
+            doing    : demo.doing,
+            done     : demo.done,
+            createdAt: serverTimestamp()
+          })
+          .then((doc) => {
+            console.log(doc.id)
+            docID = doc.id
+
+            setPlanningData(demo.planning)
+            setDoingData(demo.doing)
+            setDoneData(demo.done)
+          })
+        }
+        else {
+          setPlanningData(data[0].planning)
+          setDoingData(data[0].doing)
+          setDoneData(data[0].done)
+        }
+      })
+
+      // setPlanningData(tempData.planning)
+      // setDoingData(tempData.doing)
+      // setDoneData(tempData.done)
     }
   });
 
