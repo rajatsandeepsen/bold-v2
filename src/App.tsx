@@ -12,7 +12,6 @@ import Auth from "./components/auth";
 import { Separator } from "../components/ui/separator";
 import "./App.css";
 
-const array = [1, 2, 3, 4, 5, 6];
 
 export type auth = {
   name: string;
@@ -22,7 +21,7 @@ export type auth = {
 
 import { nanoid } from 'nanoid'
 export type TodoElement = {title: string, description: string, id:string}
-
+export type status = 'Planning' | 'Doing' | 'Done' | 'none'
 type TodoData = {
   done: TodoElement[]
   doing: TodoElement[]
@@ -31,8 +30,13 @@ type TodoData = {
 
 import { atom, useAtom } from "jotai";
 const currentUser = atom<User | null>(null);
-const todoData  = atom<TodoData | null>(null)
+// const todoData  = atom<TodoData | null>(null)
 
+const planning = atom<TodoElement[] |null>(null)
+const doing = atom<TodoElement[] |null>(null)
+const done = atom<TodoElement[] |null>(null)
+
+// temperary data
 const tempElement1:TodoElement = {title: "go touch some grass1", description: "and make some money", id:nanoid()}
 const tempElement11:TodoElement = {title: "go touch some grass11", description: "and make some money", id:nanoid()}
 const tempElement111:TodoElement = {title: "go touch some grass111", description: "and make some money", id:nanoid()}
@@ -47,7 +51,10 @@ let i = 0;
 
 function App() {
   const [user, setUser] = useAtom(currentUser);
-  const [data, setData] = useAtom(todoData);
+
+  const [ , setPlanningData] = useAtom(planning);
+  const [ , setDoingData] = useAtom(doing);
+  const [ , setDoneData] = useAtom(done);
 
   onAuthStateChanged(auth, (user) => {
     if (user && i === 0) {
@@ -55,9 +62,13 @@ function App() {
       console.log(user.uid)
       i++
 
-      setData(tempData)
+      setPlanningData(tempData.planning)
+      setDoingData(tempData.doing)
+      setDoneData(tempData.done)
     }
   });
+
+  
 
 
   return (
@@ -66,10 +77,12 @@ function App() {
       <Separator className="mb-10" />
 
       {user ? (
-        <article className="flex flex-col md:flex-row gap-10 w-full justify-center md:min-h-96 px-5 md:px-10">
-          <CardEach status="Planning" prev={"none"} next={"Doing"} eachData={data?.doing || []} />
-          <CardEach status="Doing" prev={"Planning"} next={"Done"} eachData={data?.done || []} />
-          <CardEach status="Done" prev={"Doing"} next={"none"} eachData={data?.planning || []} />
+        <article className="flex flex-col lg:flex-row gap-10 w-full justify-center lg:min-h-96 px-5 lg:px-10">
+
+          <CardEach atomCode={planning}  status={{current:"Planning", prev:"none",     next:"Doing"}} />
+          <CardEach atomCode={doing}     status={{current:"Doing",    prev:"Planning", next:"Done"}} />
+          <CardEach atomCode={done}      status={{current:"Done",     prev:"Doing",    next:"none"}} />
+
         </article>
       ) : (
         <Auth currentUser={currentUser} auth={auth} />
