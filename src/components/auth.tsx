@@ -8,19 +8,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/ta
 import { useToast } from "../../components/ui/use-toast"
 
 
-
-
-// import React from "react"
-import { createUserWithEmailAndPassword, Auth, signInWithEmailAndPassword } from 'firebase/auth'
-// import { PrimitiveAtom, useAtom } from "jotai"
 import { Loader2 } from "lucide-react"
+import { nanoid } from "nanoid"
+import { emailCheck } from "../lib/const"
 
-// const Auth = ({auth,currentUser}:{auth: Auth ,currentUser: PrimitiveAtom<User | null>}) => {
-const Auth = ({auth}:{auth: Auth}) => {
+const Auth = ({setUserIO}:{setUserIO:React.Dispatch<React.SetStateAction<boolean>>}) => {
     const [creating, setCreating] = useState(false)
     const [logining, setlogining] = useState(false)
 
-    // const [, setUser] = useAtom(currentUser)
     const {toast} = useToast()
 
     function signup(e: any){
@@ -32,33 +27,24 @@ const Auth = ({auth}:{auth: Auth}) => {
         const password = form.newPassword.value
         const PasswordConfirm = form.newPasswordConfirm.value
 
-        if (PasswordConfirm !== password){
+        if (PasswordConfirm !== password || !emailCheck(email)){
             toast({
                 variant: "destructive",
-                title: "Wrong Password Confirmation",
-                description: "Password is not equal",
+                title: "Wrong Email/Password",
+                description: "Try again",
             })
+            form.reset()
+            setCreating(false)
             return;
         }
         
-        createUserWithEmailAndPassword(auth, email, password)
-            .then(cred => {
-                console.log(cred.user)
-                // setUser(cred.user)
-                toast({
-                    title: "Auth Success",
-                    description: cred.user.email,
-                })
-            })
-            .catch(err => {
-                console.log(err)
-                toast({
-                    variant: "destructive",
-                    title: "Auth Failed",
-                    description: err.message,
-                })
-                setCreating(false)
-            })
+        localStorage.setItem('user',JSON.stringify({
+            email: email,
+            id: nanoid(),
+            password: password
+        }))
+
+        setUserIO(true)
         
     }
 
@@ -69,26 +55,24 @@ const Auth = ({auth}:{auth: Auth}) => {
         const email = form.email.value
         const password = form.password.value
 
-        signInWithEmailAndPassword(auth, email, password)
-            .then(cred => {
-                console.log(cred.user)
-                // setUser(cred.user)
-                toast({
-                    title: "Auth Success",
-                    description: cred.user.email,
-                })
+        if (!emailCheck(email)){
+            toast({
+                variant: "destructive",
+                title: "Wrong Email/Password",
+                description: "Try again",
             })
-            .catch(err => {
-                console.log(err)
-                toast({
-                    variant: "destructive",
-                    title: "Auth Failed",
-                    description: err.message,
-                })
-                setlogining(false)
-            })
+            form.reset()
+            setCreating(false)
+            return;
+        }
 
+        localStorage.setItem('user',JSON.stringify({
+            email: email,
+            id: nanoid(),
+            password: password
+        }))
 
+        setUserIO(true)
     }
 
     return ( 
@@ -144,7 +128,6 @@ const Auth = ({auth}:{auth: Auth}) => {
                     <Input required={true} className=" required:valid:bg-slate-100" autoComplete="new-password" name="newPassword" placeholder="**** ****" type="password" />
                     </div>
                     <div className="space-y-1">
-                    {/* <Label htmlFor="newPassword">Password</Label> */}
                     <Input required={true} className=" required:valid:bg-slate-100" autoComplete="new-password" name="newPasswordConfirm" placeholder="Password confirm" type="password" />
                     </div>
                 </CardContent>
