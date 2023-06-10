@@ -28,6 +28,7 @@ interface CardEachType {
 const CardEach: React.FunctionComponent<CardEachType> = ({current, prev, next}) => {
     const { toast } = useToast()
     const [currentData, setCurrentData ] = useAtom(current.atomCode)
+    
 
     const [ , setNextData] = useAtom(next.atomCode)
     const [ , setPrevData] = useAtom(prev.atomCode)
@@ -39,7 +40,9 @@ const CardEach: React.FunctionComponent<CardEachType> = ({current, prev, next}) 
     useEffect(() => {
       // setTimeout(() => setItems(currentData || []),900)
       setItems(currentData || [])
-    }, [currentData]);
+      localStorage.setItem( current.status ,JSON.stringify(currentData || []))
+
+    }, [currentData, current.status]);
 
     function adder(to:AtomCode['status'], element:TodoElement[]) {
         switch (to){
@@ -66,7 +69,7 @@ const CardEach: React.FunctionComponent<CardEachType> = ({current, prev, next}) 
       }
 
       currentData?.forEach((element)=>{
-        if (ID.includes(element.id)) newArray.push(element)
+        if (ID.includes(element.id || '')) newArray.push(element)
         else oldArray.push(element) 
       })
 
@@ -165,7 +168,7 @@ const CardEach: React.FunctionComponent<CardEachType> = ({current, prev, next}) 
         const form = e.target as HTMLFormElement & formElements 
         const element:TodoElement = {title: form.title.value, description: form.description.value, id: nanoid() }
         
-        setItems((items:TodoElement[]) => [element, ...items])
+        setItems((items:TodoElement[]) => [element, ...(items || [])])
         form.reset()
       }
       
