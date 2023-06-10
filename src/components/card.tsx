@@ -28,6 +28,7 @@ interface CardEachType {
 const CardEach: React.FunctionComponent<CardEachType> = ({current, prev, next}) => {
     const { toast } = useToast()
     const [currentData, setCurrentData ] = useAtom(current.atomCode)
+    const [checkAll, setCheckAll] = useState(false)
     
 
     const [ , setNextData] = useAtom(next.atomCode)
@@ -41,6 +42,7 @@ const CardEach: React.FunctionComponent<CardEachType> = ({current, prev, next}) 
       // setTimeout(() => setItems(currentData || []),900)
       setItems(currentData || [])
       localStorage.setItem( current.status ,JSON.stringify(currentData || []))
+      setCheckAll(false)
 
     }, [currentData, current.status]);
 
@@ -85,27 +87,14 @@ const CardEach: React.FunctionComponent<CardEachType> = ({current, prev, next}) 
         <Card className='w-full lg:w-1/3 h-min transition-height duration-500 ease-in-out'>
         <CardHeader className='flex flex-row p-4  items-center justify-between'>
           <CardTitle><Badge>{current.status}</Badge></CardTitle>
+          <Checkbox className='w-6 h-6 border-slate-300' checked={checkAll} onClick={()=> setCheckAll((checkAll)=>!checkAll)} />
         </CardHeader>
         <form ref={form}>
         <Reorder.Group values={items} onReorder={setItems}>
           <AnimatePresence mode='sync'>
             {items.map((item)=>(  
-                <Reorder.Item 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{opacity: 0}}
-                  transition={{duration: .5}}
-                  key={item.id} value={item} //dragListener={false} dragControls={controls}
-                >
-                    <CardContent className='h-auto border p-4 flex justify-between select-none items-center gap-4 m-2 rounded-md bg-white hover:bg-slate-50'>
-                        <div className="flex flex-col overflow-hidden break-normal">
-                          <h6>{item.title}</h6>
-                          <p>{item.description}</p>
-                        </div>
-                        {/* <Grip className='text-slate-300' onPointerDown={(e) => controls.start(e)} /> */}
-                        <Checkbox className='w-6 h-6 border-slate-300' name={current.status} value={item.id} />
-
-                    </CardContent>
+                <Reorder.Item initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{opacity: 0}} transition={{duration: .5}} key={item.id} value={item} >
+                    <ReorderItem item={item} status={current.status} checkAll={checkAll} />
               </Reorder.Item>
             ))}
           </AnimatePresence>
@@ -149,7 +138,18 @@ const CardEach: React.FunctionComponent<CardEachType> = ({current, prev, next}) 
     
     export default CardEach;
     
-
+const ReorderItem = ({item, checkAll, status}:{item:TodoElement, checkAll:boolean, status:string}) => {
+  const [check, setCheck] = useState(checkAll)
+  return ( 
+    <CardContent className='h-auto border p-4 flex justify-between select-none items-center gap-4 m-2 rounded-md bg-white hover:bg-slate-50'>
+        <div className="flex flex-col overflow-hidden break-normal">
+          <h6>{item.title}</h6>
+          <p>{item.description}</p>
+        </div>
+        <Checkbox className='w-6 h-6 border-slate-300' checked={check || checkAll} onClick={()=>setCheck((check)=> !check)} name={status} value={item.id} />
+    </CardContent>
+   );
+}
 
 
     
