@@ -128,7 +128,6 @@ const Auth = ({setUserIO}:{setUserIO:React.Dispatch<React.SetStateAction<boolean
                     <Input required={true} className=" required:valid:bg-slate-100" autoComplete="new-password" name="newPassword" placeholder="**** ****" type="password" />
                     </div>
                     <div className="space-y-1">
-                    {/* <Label htmlFor="newPassword">Password</Label> */}
                     <Input required={true} className=" required:valid:bg-slate-100" autoComplete="new-password" name="newPasswordConfirm" placeholder="Password confirm" type="password" />
                     </div>
                 </CardContent>
