@@ -19,9 +19,8 @@ export type User = {
   password : string
 }
 
-import { nanoid } from 'nanoid'
 import { atom, useAtom } from "jotai";
-import {TodoData, TodoElement, AtomCode} from './lib/types'
+import { TodoElement, AtomCode} from './lib/types'
 import { isEmpty, userValid } from "./lib/const";
 import { useState } from "react";
 
@@ -31,16 +30,6 @@ const planning = atom<TodoElement[] | null>(null)
 const doing = atom<TodoElement[] | null>(null)
 const done = atom<TodoElement[] | null>(null)
 
-// temperary data
-const demo1:TodoElement = {title: "Start", description: "Networking with others", id:nanoid()}
-const demo2:TodoElement = {title: "Build", description: "TODO app and submit before saturday", id:nanoid()}
-const demo3:TodoElement = {title: "Apply", description: "for the uLearn frontend intern", id:nanoid()}
-
-const demo:TodoData = {
-  done: [demo3],
-  doing: [demo2],
-  planning: [demo1],
-}
 
 let i =0
 function App() {

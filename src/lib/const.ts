@@ -15,8 +15,7 @@ export const getUserName = (email:string) => {
 }
 
 export const isEmpty = (obj:object) => {
-    for (const i in obj) return false
-
+    for (const _ in obj) return false
     return true
 }
 

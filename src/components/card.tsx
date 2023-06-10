@@ -1,5 +1,5 @@
 import React, {useState, useRef, useEffect} from 'react';
-import { Reorder,AnimatePresence, motion } from "framer-motion"
+import { Reorder,AnimatePresence } from "framer-motion"
 import { ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react';
 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, } from "../../components/ui/card"
