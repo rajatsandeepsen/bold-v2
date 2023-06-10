@@ -2,8 +2,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar"
 import { getFallBack } from '../lib/const'
 
 import { User } from "firebase/auth"
-import type { auth } from '../App'
-import { Atom } from "jotai"
+// import type { auth } from '../App'
+// import { Atom } from "jotai"
 
  
 const Header = ({user}:{user:User | null}) => {

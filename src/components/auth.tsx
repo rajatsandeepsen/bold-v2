@@ -11,15 +11,16 @@ import { useToast } from "../../components/ui/use-toast"
 
 
 // import React from "react"
-import { createUserWithEmailAndPassword, Auth, signInWithEmailAndPassword, User } from 'firebase/auth'
-import { PrimitiveAtom, useAtom } from "jotai"
+import { createUserWithEmailAndPassword, Auth, signInWithEmailAndPassword } from 'firebase/auth'
+// import { PrimitiveAtom, useAtom } from "jotai"
 import { Loader2 } from "lucide-react"
 
-const Auth = ({auth,currentUser}:{auth: Auth ,currentUser: PrimitiveAtom<User | null>}) => {
+// const Auth = ({auth,currentUser}:{auth: Auth ,currentUser: PrimitiveAtom<User | null>}) => {
+const Auth = ({auth}:{auth: Auth}) => {
     const [creating, setCreating] = useState(false)
     const [logining, setlogining] = useState(false)
 
-    const [, setUser] = useAtom(currentUser)
+    // const [, setUser] = useAtom(currentUser)
     const {toast} = useToast()
 
     function signup(e: any){

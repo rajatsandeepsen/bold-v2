@@ -26,9 +26,9 @@ import {TodoData, TodoElement, AtomCode} from './lib/types'
 
 const currentUser = atom<User | null>(null);
 
-const planning = atom<TodoElement[] |null>(null)
-const doing = atom<TodoElement[] |null>(null)
-const done = atom<TodoElement[] |null>(null)
+const planning = atom<TodoElement[] | null>(null)
+const doing = atom<TodoElement[] | null>(null)
+const done = atom<TodoElement[] | null>(null)
 
 // temperary data
 const tempElement1:TodoElement = {title: "go touch some grass1", description: "and make some money", id:nanoid()}
@@ -83,7 +83,7 @@ function App() {
           
         </article>
       ) : (
-        <Auth currentUser={currentUser} auth={auth} />
+        <Auth auth={auth} />
       )}
     </>
   );
