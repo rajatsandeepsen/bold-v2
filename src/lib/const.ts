@@ -29,3 +29,9 @@ const User = z.object({
     id: z.string().trim()
 })
 
+export const TodoElementZod = z.object({
+    title: z.string().trim().min(4),
+    description: z.string().trim().min(4),
+    id: z.string().trim()
+})
+

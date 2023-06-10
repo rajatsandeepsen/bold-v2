@@ -16,6 +16,7 @@ import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert"
 import { TodoElement, AtomCode, status,} from '../lib/types'
 import { nanoid } from 'nanoid';
 import { useAtom } from 'jotai';
+import { TodoElementZod } from '../lib/const';
 
 
 
@@ -191,10 +192,12 @@ const ReorderItem = ({item, checkAll, status}:{item:TodoElement, checkAll:boolea
         }
         
         const form = e.target as HTMLFormElement & formElements 
-        const element:TodoElement = {title: form.title.value, description: form.description.value, id: nanoid() }
-        
-        setItems((items:TodoElement[]) => [element, ...(items || [])])
-        form.reset()
+        const after = TodoElementZod.safeParse({title: form.title.value, description: form.description.value, id: nanoid() })
+        if (after.success) {
+          setItems((items:TodoElement[]) => [after.data, ...(items || [])])
+          form.reset()
+        }
+        else console.log("Sm")
       }
       
       return (
