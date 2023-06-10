@@ -1,8 +1,9 @@
-import React, {useState, useRef, FormHTMLAttributes} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import { Reorder } from "framer-motion"
+import { ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react';
+
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, } from "../../components/ui/card"
 import { Button } from "../../components/ui/button"
-import { ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, } from "../../components/ui/dialog"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
@@ -11,62 +12,89 @@ import { Badge } from "../../components/ui/badge"
 import { useToast } from "../../components/ui/use-toast"
 import { Checkbox } from "../../components/ui/checkbox"
 
-import { TodoElement, status } from '../App';
+import { TodoElement, AtomCode, status,} from '../lib/types'
 import { nanoid } from 'nanoid';
-import { PrimitiveAtom, useAtom } from 'jotai';
-// import { Atom, PrimitiveAtom, atom, useAtom } from 'jotai';
+import { useAtom } from 'jotai';
 
 
 
-interface CardEachProps {
-    status: {
-      prev : status,
-      next : status,
-      current : status
-    }
-    // next : status
-    // prev : status
-    atomCode : PrimitiveAtom<TodoElement[] | null>
+
+interface CardEachType {
+  current : AtomCode
+  prev    : AtomCode
+  next    : AtomCode
 }
  
-const CardEach: React.FunctionComponent<CardEachProps> = ({status, atomCode}) => {
-    const {current, prev, next} = status
-    const [data, ] = useAtom(atomCode);
-    const [items, setItems] = useState(data || [])
+const CardEach: React.FunctionComponent<CardEachType> = ({current, prev, next}) => {
+
+    const [currentData, setCurrentData ] = useAtom(current.atomCode)
+
+    const [ nextData , setNextData] = useAtom(next.atomCode)
+    const [ prevData, setPrevData] = useAtom(prev.atomCode)
+
+    
+    const [items, setItems] = useState<TodoElement[] | []>(currentData || [])
     const form = useRef<HTMLFormElement>(null)
 
+    useEffect(() => {
+      setItems(currentData || [])
+    }, [currentData]);
+
+    function adder(to:AtomCode['status'], element:TodoElement[]) {
+        switch (to){
+          case next.status: { setNextData([...element, ...(nextData || []) ]); break; } // setNextData((get)=> [...get(next.atomCode)])
+          case prev.status: { setPrevData([...element, ...(prevData || []) ]); break; }
+        }
+    }
+
+    // function deleter(element:TodoElement[]){
+    //   element.
+    // }
 
 
-    function handleSumbit(e:React.MouseEvent<HTMLElement>, futureType:status){
+    function handleSumbit(futureType:status){
 
       const formData = new FormData(form.current || undefined)
-      const newArray = []
+      const newArray:Array<TodoElement> = []
+      const oldArray:Array<TodoElement> = []
+      const ID:string[] = []
+      // let iterator:Array<TodoElement> = currentData || []
       let currentType : status | null = null
 
 
       for (const [key, value] of formData) {
         currentType ??= key as status
-        newArray.push(data?.find((item)=> item.id === value))
+        ID.push(value as string)
       }
 
-      console.log(currentType,' to ',futureType,newArray)
+      currentData?.forEach((element)=>{
+        if (ID.includes(element.id)) newArray.push(element)
+        else oldArray.push(element) 
+      })
 
-      // function adder(to:status, element:TodoElement[]){
-      //   switch (to){
-      //     case 'Doing': setAtomData((get)=> [element,...get(doing)]) ; break ;
-      //   }
-      // }
+      if (newArray.length > 0) {
+        console.log(currentType,' to ',futureType,newArray)
+        adder(futureType, newArray)
+        setCurrentData(oldArray)
+      }
+      
     }
     
     return ( 
         <Card className='w-full lg:w-1/3 h-min'>
         <CardHeader className='flex flex-row p-4  items-center justify-between'>
-          <CardTitle><Badge>{current}</Badge></CardTitle>
+          <CardTitle><Badge>{current.status}</Badge></CardTitle>
         </CardHeader>
         <form ref={form}>
         <Reorder.Group values={items} onReorder={setItems}>
             {items.map((item)=>(  
-                <Reorder.Item key={item.id} value={item} //dragListener={false} dragControls={controls}
+                <Reorder.Item 
+                initial={{ top: '-100%' }}
+                  animate={{ top: 0 }}
+                  exit={{top: '-100%'}}
+                  transition={{duration: .5}}
+                  
+                  key={item.id} value={item} //dragListener={false} dragControls={controls}
                 >
                     <CardContent className='h-auto border p-4 flex justify-between select-none items-center gap-4 m-2 rounded-md bg-white hover:bg-slate-50'>
                         <div className="flex flex-col overflow-hidden break-normal">
@@ -74,7 +102,7 @@ const CardEach: React.FunctionComponent<CardEachProps> = ({status, atomCode}) =>
                           <p>{item.description}</p>
                         </div>
                         {/* <Grip className='text-slate-300' onPointerDown={(e) => controls.start(e)} /> */}
-                        <Checkbox className='w-6 h-6 border-slate-300' name={current} value={item.id} />
+                        <Checkbox className='w-6 h-6 border-slate-300' name={current.status} value={item.id} />
 
                     </CardContent>
               </Reorder.Item>
@@ -83,21 +111,23 @@ const CardEach: React.FunctionComponent<CardEachProps> = ({status, atomCode}) =>
         </form>
 
         <CardFooter className='flex justify-between items-start gap-2 m-2 p-0'>
-            <DialogDemo setItems={setItems} />
+            <DialogDemo setItems={setCurrentData} />
 
-          <div className='flex gap-2 flex-wrap justify-end'>
-            <Button onClick={(e)=> handleSumbit(e, 'none')} variant={'destructive'}>
-              <Trash2 />
-            </Button>
-            {prev !== 'none' && <Button onClick={(e)=> handleSumbit(e, prev)} variant={'outline'}>
-              <ChevronLeft />
-              <span className='hidden lg:block'>{prev}</span>
-            </Button>}
-            {next !== 'none' && <Button onClick={(e)=> handleSumbit(e, next)} variant={'outline'}>
-            <span className='hidden lg:block'>{next}</span>
-              <ChevronRight />
-            </Button>}
-          </div>
+            <div className='flex gap-2 flex-wrap justify-end'>
+                <Button onClick={()=> handleSumbit('none')} variant={'destructive'}>
+                  <Trash2 />
+                </Button>
+              {prev.status !== 'none' && 
+                <Button onClick={()=> handleSumbit(prev.status)} variant={'outline'}>
+                    <ChevronLeft />
+                    <span className='hidden lg:block'>{prev.status}</span>
+                </Button>}
+              {next.status !== 'none' && 
+                <Button onClick={()=> handleSumbit(next.status)} variant={'outline'}>
+                    <span className='hidden lg:block'>{next.status}</span>
+                    <ChevronRight />
+                </Button>}
+            </div>
         </CardFooter>
       </Card>
      );
@@ -108,9 +138,9 @@ const CardEach: React.FunctionComponent<CardEachProps> = ({status, atomCode}) =>
 
 
 
-
     
-    function DialogDemo({setItems}:{ setItems:React.Dispatch<React.SetStateAction<TodoElement[]>> }) {
+    
+    function DialogDemo({setItems}:{ setItems: any }) {
       const { toast } = useToast()
 
       function addTodo(e: React.SyntheticEvent<HTMLFormElement>){
@@ -124,7 +154,7 @@ const CardEach: React.FunctionComponent<CardEachProps> = ({status, atomCode}) =>
         const form = e.target as HTMLFormElement & formElements 
         const element:TodoElement = {title: form.title.value, description: form.description.value, id: nanoid() }
         
-        setItems((items) => [element, ...items])
+        setItems((items:TodoElement[]) => [element, ...items])
         form.reset()
       }
       

@@ -20,17 +20,11 @@ export type auth = {
 };
 
 import { nanoid } from 'nanoid'
-export type TodoElement = {title: string, description: string, id:string}
-export type status = 'Planning' | 'Doing' | 'Done' | 'none'
-type TodoData = {
-  done: TodoElement[]
-  doing: TodoElement[]
-  planning: TodoElement[]
-}
-
 import { atom, useAtom } from "jotai";
+import {TodoData, TodoElement, AtomCode} from './lib/types'
+
+
 const currentUser = atom<User | null>(null);
-// const todoData  = atom<TodoData | null>(null)
 
 const planning = atom<TodoElement[] |null>(null)
 const doing = atom<TodoElement[] |null>(null)
@@ -41,9 +35,9 @@ const tempElement1:TodoElement = {title: "go touch some grass1", description: "a
 const tempElement11:TodoElement = {title: "go touch some grass11", description: "and make some money", id:nanoid()}
 const tempElement111:TodoElement = {title: "go touch some grass111", description: "and make some money", id:nanoid()}
 const tempData:TodoData = {
-  done: [tempElement1,tempElement11,tempElement111],
-  doing: [tempElement1,tempElement11,tempElement111],
-  planning: [tempElement1,tempElement11,tempElement111],
+  done: [tempElement1],
+  doing: [tempElement11],
+  planning: [tempElement111],
 }
 
 
@@ -69,6 +63,10 @@ function App() {
   });
 
   
+  const planningBundle : AtomCode = {atomCode: planning, status:'Planning'}
+  const doingBundle    : AtomCode = {atomCode: doing,    status:'Doing'}
+  const doneBundle     : AtomCode = {atomCode: done,     status:'Done'}
+  const nothing        : AtomCode = {atomCode: done,     status:'none'}
 
 
   return (
@@ -79,10 +77,10 @@ function App() {
       {user ? (
         <article className="flex flex-col lg:flex-row gap-10 w-full justify-center lg:min-h-96 px-5 lg:px-10">
 
-          <CardEach atomCode={planning}  status={{current:"Planning", prev:"none",     next:"Doing"}} />
-          <CardEach atomCode={doing}     status={{current:"Doing",    prev:"Planning", next:"Done"}} />
-          <CardEach atomCode={done}      status={{current:"Done",     prev:"Doing",    next:"none"}} />
-
+          <CardEach current={planningBundle} prev={nothing}        next={doingBundle}/>
+          <CardEach current={doingBundle}    prev={planningBundle} next={doneBundle}/>
+          <CardEach current={doneBundle}     prev={doingBundle}    next={nothing}/>
+          
         </article>
       ) : (
         <Auth currentUser={currentUser} auth={auth} />
