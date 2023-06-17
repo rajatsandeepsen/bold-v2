@@ -18,6 +18,8 @@ import { nanoid } from 'nanoid';
 import { useAtom } from 'jotai';
 import { TodoElementZod } from '../lib/const';
 
+import useOnKey from '../lib/useOnKey'; // my own React Hook
+
 
 
 
@@ -78,7 +80,7 @@ const CardEach: React.FunctionComponent<CardEachType> = ({current, prev, next}) 
 
       if (newArray.length > 0) {
         console.log(currentType,' to ',futureType,newArray)
-        adder(futureType, newArray)
+        if (futureType !== 'none') adder(futureType, newArray)
         setCurrentData(oldArray)
         toast({ description: "Successfully Updated", })
       }
@@ -182,6 +184,9 @@ const ReorderItem = ({item, checkAll, status}:{item:TodoElement, checkAll:boolea
     
     function DialogDemo({setItems}:{ setItems: any }) {
       const { toast } = useToast()
+      const form = useRef<HTMLFormElement>(null)
+
+      const [enter,] = useOnKey(() => form.current?.requestSubmit(), 'Enter')
 
       function addTodo(e: React.SyntheticEvent<HTMLFormElement>){
         e.preventDefault()
@@ -196,8 +201,11 @@ const ReorderItem = ({item, checkAll, status}:{item:TodoElement, checkAll:boolea
         if (after.success) {
           setItems((items:TodoElement[]) => [after.data, ...(items || [])])
           form.reset()
+          toast({ description: "Successfully added new todo element", })
         }
-        else console.log("Sm")
+        else {
+          toast({ description: after.error.errors[0].message, variant:'destructive' })
+        }
       }
       
       return (
@@ -209,8 +217,8 @@ const ReorderItem = ({item, checkAll, status}:{item:TodoElement, checkAll:boolea
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[425px]">
-        <form onSubmit={addTodo}>
+      <DialogContent className="sm:max-w-[425px]" onKeyDown={enter}> 
+        <form ref={form} onSubmit={addTodo}>
         <DialogHeader>
           <DialogTitle>Create New To-Do</DialogTitle>
           <DialogDescription>
@@ -223,17 +231,17 @@ const ReorderItem = ({item, checkAll, status}:{item:TodoElement, checkAll:boolea
             <Label htmlFor="title" className="text-right">
               Title
             </Label>
-            <Input name="title" type='string' placeholder="eg: touch some grass" className="col-span-3" />
+            <Input name="title" type='string' required placeholder="eg: touch some grass" className="col-span-3 valid:bg-slate-100" />
           </div>
           <div className="flex flex-col items-start gap-4">
             <Label htmlFor="username" className="text-right">
               Description
             </Label>
-            <Textarea name="description" placeholder="eg: leave home and talk to people" className="col-span-3" />
+            <Textarea name="description" required placeholder="eg: leave home and talk to people" className="col-span-3 valid:bg-slate-100" />
           </div>
         </div>
         <DialogFooter>
-          <Button type='submit' onClick={() => { toast({ description: "Successfully added new todo element", }) }}>Save changes</Button>
+          <Button type='submit'>Save changes</Button>
         </DialogFooter>
         </form>
       </DialogContent>

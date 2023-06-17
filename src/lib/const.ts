@@ -30,7 +30,7 @@ const User = z.object({
 })
 
 export const TodoElementZod = z.object({
-    title: z.string().trim().min(4),
+    title: z.string().trim().min(1),
     description: z.string().trim().min(4),
     id: z.string().trim()
 })
