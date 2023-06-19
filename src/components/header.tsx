@@ -41,7 +41,7 @@ const Model = () => {
             <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-                onClick={() => localStorage.removeItem('user')}
+                onClick={() => {localStorage.removeItem('user'); window.location.reload()}}
             >Continue</AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>

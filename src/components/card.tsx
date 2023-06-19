@@ -18,8 +18,13 @@ import { nanoid } from 'nanoid';
 import { useAtom } from 'jotai';
 import { TodoElementZod } from '../lib/const';
 
+import useOnKey from '../lib/useOnKey'; // my own React Hook
 
 
+type formElements = {
+  title : HTMLInputElement
+  description : HTMLInputElement
+}
 
 interface CardEachType {
   current : AtomCode
@@ -78,7 +83,7 @@ const CardEach: React.FunctionComponent<CardEachType> = ({current, prev, next}) 
 
       if (newArray.length > 0) {
         console.log(currentType,' to ',futureType,newArray)
-        adder(futureType, newArray)
+        if (futureType !== 'none') adder(futureType, newArray)
         setCurrentData(oldArray)
         toast({ description: "Successfully Updated", })
       }
@@ -110,9 +115,9 @@ const CardEach: React.FunctionComponent<CardEachType> = ({current, prev, next}) 
               </CardContent>
             }
 
-            {items.map((item)=>(  
-                <Reorder.Item initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{opacity: 0}} transition={{duration: .5}} key={item.id} value={item} >
-                    <ReorderItem item={item} status={current.status} checkAll={checkAll} />
+            {items.map((item, intex)=>(  
+                <Reorder.Item initial={{ height:'-100%' }} animate={{ height:0 }} exit={{opacity:0}} transition={{duration: .5}} key={item.id} value={item} >
+                    <ReorderItem item={item} status={current.status} checkAll={checkAll} index={intex} atom={current.atomCode} />
               </Reorder.Item>
             ))}
 
@@ -152,25 +157,44 @@ const CardEach: React.FunctionComponent<CardEachType> = ({current, prev, next}) 
     
     export default CardEach;
     
-const ReorderItem = ({item, checkAll, status}:{item:TodoElement, checkAll:boolean, status:string}) => {
+const ReorderItem = ({item, checkAll, status, index, atom}:{item:TodoElement, checkAll:boolean, status:string, index:number, atom:any}) => {
+  
+  const [, setCurrentData ] = useAtom(atom)
   const [check, setCheck] = useState(checkAll)
+  const { toast } = useToast()
+
+  function update(event:React.SyntheticEvent<HTMLFormElement>){
+    event.preventDefault()
+
+    
+    const form = event.target as HTMLFormElement & formElements 
+    const after = TodoElementZod.safeParse({title: form.title.value, description: form.description.value, id: nanoid() })
+
+    if (after.success) {
+      setCurrentData((items:TodoElement[])=> items.map((item, iterator) => iterator !== index ? item : {...after.data, id:item.id} ))
+
+      toast({ description: "Successfully added new todo element", })
+    }
+    else {
+      toast({ description: after.error.errors[0].message, variant:'destructive' })
+    }
+    
+
+  }
   return ( 
     <CardContent className='select-none p-2'>
-        <Alert className='hover:bg-slate-50 flex justify-between cursor-move gap-2'>
-          <div>
+        <Alert className='hover:bg-slate-50 flex justify-between cursor-grab gap-2 !ps-4 relative'>
+          <div className='text-start break-normal'>
             <AlertTitle>{item.title}</AlertTitle>
             <AlertDescription>{item.description}</AlertDescription>
           </div>
 
-          <div className='flex items-center'>
-          <Button type='button' variant={'ghost'} className='p-2 text-slate-300 cursor-not-allowed group'>
-            <span className='w-0 opacity-0 transition-all delay-200 group-hover:w-14 group-hover:opacity-100'>Edit</span>
-            <PenTool />
-          </Button>
-          <Button type='button' variant={'ghost'} className='p-2'>
-            <Checkbox className='w-6 h-6 border-slate-300' checked={check || checkAll} onClick={()=>setCheck((check)=> !check)} name={status} value={item.id} />
-          </Button>
-        </div>
+          <div className='absolute right-4 flex items-center'>
+            <EditableText item={item} update={update}/>
+            <Button type='button' variant={'ghost'} className='p-2'>
+              <Checkbox className='w-6 h-6 border-slate-300' checked={check || checkAll} onClick={()=>setCheck((check)=> !check)} name={status} value={item.id} />
+            </Button>
+          </div>
 
         </Alert>
     </CardContent>
@@ -178,26 +202,77 @@ const ReorderItem = ({item, checkAll, status}:{item:TodoElement, checkAll:boolea
 }
 
 
+const EditableText = ({item, update}:{item:TodoElement, update:any}) => {
+
+  const form = useRef<HTMLFormElement>(null)
+
+  const [enter,] = useOnKey(() => {
+    form.current?.requestSubmit();
+  }, 'Enter')
+
+  return ( 
+    <Dialog>
+      <DialogTrigger className='text-start'>
+        <Button type='button' variant={'ghost'} className='p-2 text-slate-300 bg-white group'>
+              <span className='w-0 opacity-0 transition-all delay-200 group-hover:w-14 group-hover:opacity-100'>Edit</span>
+              <PenTool />
+        </Button>
+      </DialogTrigger>
+
+      <DialogContent className="sm:max-w-[425px]" onKeyDown={enter}> 
+        <form ref={form} onSubmit={update}>
+        <DialogHeader>
+          <DialogTitle>Edit To-Do</DialogTitle>
+          <DialogDescription>
+            Edit To-Do element here. Click save when you're done.
+          </DialogDescription>
+
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="flex flex-col items-start gap-4">
+            <Label htmlFor="title" className="text-right">
+              Title
+            </Label>
+            <Input name="title" type='string' required placeholder="edit" defaultValue={item.title} className="col-span-3 valid:bg-slate-100" />
+          </div>
+          <div className="flex flex-col items-start gap-4">
+            <Label htmlFor="username" className="text-right">
+              Description
+            </Label>
+            <Textarea name="description" required placeholder="edit" defaultValue={item.description} className="col-span-3 valid:bg-slate-100" />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button type='submit'>Save changes</Button>
+        </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+   );
+}
+ 
+
     
     
     function DialogDemo({setItems}:{ setItems: any }) {
       const { toast } = useToast()
+      const form = useRef<HTMLFormElement>(null)
+
+      const [enter,] = useOnKey(() => form.current?.requestSubmit(), 'Enter')
 
       function addTodo(e: React.SyntheticEvent<HTMLFormElement>){
         e.preventDefault()
 
-        type formElements = {
-          title : HTMLInputElement
-          description : HTMLInputElement
-        }
-        
         const form = e.target as HTMLFormElement & formElements 
         const after = TodoElementZod.safeParse({title: form.title.value, description: form.description.value, id: nanoid() })
         if (after.success) {
           setItems((items:TodoElement[]) => [after.data, ...(items || [])])
           form.reset()
+          toast({ description: "Successfully added new todo element", })
         }
-        else console.log("Sm")
+        else {
+          toast({ description: after.error.errors[0].message, variant:'destructive' })
+        }
       }
       
       return (
@@ -209,8 +284,8 @@ const ReorderItem = ({item, checkAll, status}:{item:TodoElement, checkAll:boolea
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[425px]">
-        <form onSubmit={addTodo}>
+      <DialogContent className="sm:max-w-[425px]" onKeyDown={enter}> 
+        <form ref={form} onSubmit={addTodo}>
         <DialogHeader>
           <DialogTitle>Create New To-Do</DialogTitle>
           <DialogDescription>
@@ -223,17 +298,17 @@ const ReorderItem = ({item, checkAll, status}:{item:TodoElement, checkAll:boolea
             <Label htmlFor="title" className="text-right">
               Title
             </Label>
-            <Input name="title" type='string' placeholder="eg: touch some grass" className="col-span-3" />
+            <Input name="title" type='string' required placeholder="eg: touch some grass" className="col-span-3 valid:bg-slate-100" />
           </div>
           <div className="flex flex-col items-start gap-4">
             <Label htmlFor="username" className="text-right">
               Description
             </Label>
-            <Textarea name="description" placeholder="eg: leave home and talk to people" className="col-span-3" />
+            <Textarea name="description" required placeholder="eg: leave home and talk to people" className="col-span-3 valid:bg-slate-100" />
           </div>
         </div>
         <DialogFooter>
-          <Button type='submit' onClick={() => { toast({ description: "Successfully added new todo element", }) }}>Save changes</Button>
+          <Button type='submit'>Save</Button>
         </DialogFooter>
         </form>
       </DialogContent>
